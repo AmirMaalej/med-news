@@ -6,6 +6,9 @@ from . import models
 
 
 class ArticleSerializer(NestedCreateMixin, NestedUpdateMixin, serializers.ModelSerializer):
+    """
+    For inlined Author we use nested serializers
+    """
     author = AuthorSerializer()
 
     class Meta:
