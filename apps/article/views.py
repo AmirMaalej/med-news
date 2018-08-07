@@ -1,5 +1,6 @@
 from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
+from rest_framework.response import Response
 
 from . import serializers
 from . import models
@@ -21,7 +22,6 @@ class ArticleViewSet(viewsets.ModelViewSet):
                 pass
         return serializers.ArticleSerializer
 
-    #@cache_page(60 * 5)
     def get_queryset(self):
         """
         Filter articles if a word is passed as a GET param
@@ -34,6 +34,12 @@ class ArticleViewSet(viewsets.ModelViewSet):
             keyword = self.request.GET.get('keyword')
             queryset = models.Article.objects.filter(body__iregex=r"\y{0}\y".format(keyword))
         return queryset
+
+    #@cache_page(60 * 5)
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         serializer.save()

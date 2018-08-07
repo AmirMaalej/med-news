@@ -12,3 +12,4 @@ djangorestframework-gis==0.12
 django-richenum==3.4.0
 drf-nested-routers==0.90.2
 python-memcached==1.59
+model_mommy==1.5.1
