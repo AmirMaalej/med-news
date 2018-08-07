@@ -1,6 +1,9 @@
+from django.db.models import Q
 from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
 from rest_framework.response import Response
+
+import re
 
 from . import serializers
 from . import models
@@ -24,15 +27,26 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Filter articles if a word is passed as a GET param
-        For the filter the whole word needs to be matched
-        TODO: Add more tests depending on the requirements (only 1 word has to be passed or process many words/phrases)
+        Filter articles by a GET param if one was passed.
+        The filter looks for the whole content as it is ('ill' doesn't return 'capillary')
+        if it does not find any matches it will look for anything that contains the word
+        If you pass a whole phrase each word will be filtered separately
         """
         queryset = models.Article.objects.all()
 
         if self.request.GET.get('keyword'):
             keyword = self.request.GET.get('keyword')
-            queryset = models.Article.objects.filter(body__iregex=r"\y{0}\y".format(keyword))
+            keyword_list = re.sub("[^\w]", " ", keyword).split()
+            q = Q()
+            for word in keyword_list:
+                q |= Q(body__iregex=r"\y{0}\y".format(word))
+            queryset1 = queryset.filter(q)
+            if queryset1.count() < 1:
+                for word in keyword_list:
+                    q |= Q(body__icontains=word)
+                queryset = queryset.filter(q)
+            else:
+                queryset = queryset1
         return queryset
 
     #@cache_page(60 * 5)
