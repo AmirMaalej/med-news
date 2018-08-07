@@ -26,4 +26,4 @@ Run migrations and create superusers inside the running container.
     $ docker exec -it mednews_web_1 python3 manage.py migrate
     $ docker exec -it mednews_web_1 python3 manage.py createsuperuser --username admin
 
-Use Swagger for API testing: http://localhost:8000/api/docs/
+You can use swagger for API testing: http://localhost:8000/api/docs/

@@ -1,6 +1,5 @@
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.conf import settings
 from rest_framework.routers import DefaultRouter
 from rest_framework_swagger.views import get_swagger_view
 
@@ -12,7 +11,7 @@ from apps.article.views import ArticleViewSet
 router = DefaultRouter()
 
 # API Docs
-schema_view = get_swagger_view(title='library')
+schema_view = get_swagger_view(title='med-news')
 router.register(r'author', AuthorViewSet)
 router.register(r'article', ArticleViewSet)
 
