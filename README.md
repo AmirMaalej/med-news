@@ -6,7 +6,7 @@ Using Django 2.0, a postgres database with docker and docker-compose configurati
 ## Features:
 
   - APIs for storing and managing Articles and Authors.
-  - get/list requests to Articles are cached with Memcached backend (WIP).
+  - get/list requests to Articles are cached with Memcached backend.
   - A GET parameter allows to filter the list of articles by a word that is contained in the body.
     - The filter looks for the whole content as it is ('ill' doesn't return 'capillary').    
         If it does not find any matches it will look for anything that contains the word.
