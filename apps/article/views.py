@@ -52,14 +52,14 @@ class ArticleViewSet(viewsets.ModelViewSet):
     @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
         """
-        Caching the result of list for one hour
+        Save the the result of list in cache for one hour
         """
         return super().list(request, *args, **kwargs)
 
     @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, *args, **kwargs):
         """
-        Caching the result of retrieve for one hour
+        Save the result of retrieve in cache for one hour
         """
         return super().retrieve(request, *args, **kwargs)
 
