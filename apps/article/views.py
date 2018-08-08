@@ -1,7 +1,12 @@
+import operator
+from collections import OrderedDict
+from functools import reduce
+
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
+from itertools import chain
 
 import re
 
@@ -28,9 +33,10 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Filter articles by a GET param if one was passed.
-        The filter looks for the whole content as it is ('ill' doesn't return 'capillary')
-        if it does not find any matches it will look for anything that contains the word
+        The filter returns a list of articles ordered by those where the exact word is found in the body
+        then the ones that contains the word in the body (substring)
         If you pass a whole phrase each word will be filtered separately
+        TODO: maintain same result but minimize code ?
         """
         queryset = models.Article.objects.all()
 
@@ -38,15 +44,14 @@ class ArticleViewSet(viewsets.ModelViewSet):
             keyword = self.request.GET.get('keyword')
             keyword_list = re.sub("[^\w]", " ", keyword).split()
             q = Q()
+            qq = Q()
             for word in keyword_list:
                 q |= Q(body__iregex=r"\y{0}\y".format(word))
+                qq |= Q(body__icontains=word)
             queryset_iregex = queryset.filter(q)
-            if queryset_iregex.count() < 1:
-                for word in keyword_list:
-                    q |= Q(body__icontains=word)
-                queryset = queryset.filter(q)
-            else:
-                queryset = queryset_iregex
+            queryset_icontains = queryset.filter(qq)
+            queryset = list(OrderedDict.fromkeys(chain(queryset_iregex, queryset_icontains)))
+
         return queryset
 
     @method_decorator(cache_page(60 * 60))

@@ -18,7 +18,6 @@ class ArticleModelTest(APITestCase):
 
     def test_create_article(self):
         response = self.client.post(self.url, self.initial_data, format='json')
-        print(self.initial_data)
         self.assertEqual(response.data['title'], 'article')
         self.assertEqual(response.data['body'], 'article body')
         self.assertEqual(response.data['author'], 1)
