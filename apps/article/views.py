@@ -1,7 +1,7 @@
 from django.db.models import Q
+from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
-from rest_framework.response import Response
 
 import re
 
@@ -40,20 +40,28 @@ class ArticleViewSet(viewsets.ModelViewSet):
             q = Q()
             for word in keyword_list:
                 q |= Q(body__iregex=r"\y{0}\y".format(word))
-            queryset1 = queryset.filter(q)
-            if queryset1.count() < 1:
+            queryset_iregex = queryset.filter(q)
+            if queryset_iregex.count() < 1:
                 for word in keyword_list:
                     q |= Q(body__icontains=word)
                 queryset = queryset.filter(q)
             else:
-                queryset = queryset1
+                queryset = queryset_iregex
         return queryset
 
-    #@cache_page(60 * 5)
+    @method_decorator(cache_page(60 * 60))
+    def list(self, request, *args, **kwargs):
+        """
+        Caching the result of list for one hour
+        """
+        return super().list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(60 * 60))
     def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        """
+        Caching the result of retrieve for one hour
+        """
+        return super().retrieve(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save()
